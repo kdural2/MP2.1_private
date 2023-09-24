@@ -30,7 +30,7 @@ def load_ranker(cfg_file):
     The parameter to this function, cfg_file, is the path to a
     configuration file used to load the index. You can ignore this for MP2.
     """
-    return InL2Ranker(some_param=1.0)
+    return InL2Ranker(some_param=2.0)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     cfg = sys.argv[1]
     print('Building or loading index...')
     idx = metapy.index.make_inverted_index(cfg)
-    ranker = load_ranker(cfg)
+    ranker = metapy.index.OkapiBM25(k1=1.1, b=0.80, k3=550.0)
     ev = metapy.index.IREval(cfg)
 
     with open(cfg, 'r') as fin:
@@ -64,5 +64,6 @@ if __name__ == '__main__':
             results = ranker.score(idx, query, top_k)
             avg_p = ev.avg_p(results, query_start + query_num, top_k)
             print("Query {} average precision: {}".format(query_num + 1, avg_p))
+    ev.map()
     print("Mean average precision: {}".format(ev.map()))
     print("Elapsed: {} seconds".format(round(time.time() - start_time, 4)))
